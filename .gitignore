@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+vendor/
+.env
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Compiled files
+*.class
+*.pyc
+__pycache__/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+.cache/
