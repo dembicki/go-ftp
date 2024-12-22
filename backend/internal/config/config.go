@@ -1,27 +1,19 @@
 package config
 
 import (
-	"os"
-
-	"github.com/joho/godotenv"
+	"fmt"
 )
 
 type Config struct {
-	URL      string
+	Host     string
 	Port     string
 	Username string
 	Password string
 }
 
-func LoadConfig() (*Config, error) {
-	if err := godotenv.Load(); err != nil {
-		return nil, err
+func validateConfig(cfg *Config) error {
+	if cfg.Host == "" || cfg.Port == "" || cfg.Username == "" || cfg.Password == "" {
+		return fmt.Errorf("invalid config")
 	}
-
-	return &Config{
-		URL:      os.Getenv("FTP_URL"),
-		Port:     os.Getenv("FTP_PORT"),
-		Username: os.Getenv("FTP_USERNAME"),
-		Password: os.Getenv("FTP_PASSWORD"),
-	}, nil
+	return nil
 }

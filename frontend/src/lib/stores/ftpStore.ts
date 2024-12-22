@@ -1,103 +1,153 @@
 import { writable } from "svelte/store";
-import type { FTPItem } from "../../types/FTPItem";
-import { ftpClient } from "../api/ftpClient";
+import type { FTPConnection, FTPFile } from "../api/ftpClient";
+import { FTPClient } from "../api/ftpClient";
 
 interface FTPState {
   isConnected: boolean;
   currentPath: string;
-  files: FTPItem[];
-  error: string | null;
+  files: FTPFile[];
   isLoading: boolean;
+  error: string | null;
+  connectionDetails: {
+    host: string;
+    port: number;
+    username: string;
+    password: string;
+  } | null;
 }
 
-function createFTPStore() {
+const createFTPStore = () => {
+  const client = new FTPClient();
   const { subscribe, set, update } = writable<FTPState>({
     isConnected: false,
     currentPath: "/",
     files: [],
-    error: null,
     isLoading: false,
+    error: null,
+    connectionDetails: null,
   });
 
   return {
     subscribe,
-    connect: async (
-      host: string,
-      port: number,
-      username: string,
-      password: string
-    ) => {
-      update((state) => ({ ...state, isLoading: true, error: null }));
 
-      const result = await ftpClient.connect({
-        host,
-        port,
-        username,
-        password,
+    async connect(connection: FTPConnection) {
+      try {
+        update((state) => ({
+          ...state,
+          isLoading: true,
+          error: null,
+          connectionDetails: connection,
+        }));
+        await client.connect(connection);
+        update((state) => ({
+          ...state,
+          isConnected: true,
+          isLoading: false,
+        }));
+        await this.refreshFiles();
+      } catch (error) {
+        update((state) => ({
+          ...state,
+          isLoading: false,
+          error: error instanceof Error ? error.message : "Failed to connect",
+        }));
+      }
+    },
+
+    async disconnect() {
+      try {
+        update((state) => ({ ...state, isLoading: true, error: null }));
+        await client.disconnect();
+        set({
+          isConnected: false,
+          currentPath: "/",
+          files: [],
+          isLoading: false,
+          error: null,
+          connectionDetails: null,
+        });
+      } catch (error) {
+        update((state) => ({
+          ...state,
+          isLoading: false,
+          error:
+            error instanceof Error ? error.message : "Failed to disconnect",
+        }));
+      }
+    },
+
+    async refreshFiles() {
+      let state: FTPState;
+      update((s) => {
+        state = s;
+        return { ...s, isLoading: true, error: null };
       });
 
-      if (result.error) {
-        update((state) => ({
-          ...state,
-          error: result.error,
+      try {
+        const files = await client.listFiles(state.currentPath);
+        update((s) => ({ ...s, files, isLoading: false }));
+      } catch (error) {
+        update((s) => ({
+          ...s,
           isLoading: false,
+          error:
+            error instanceof Error ? error.message : "Failed to list files",
         }));
-        return false;
       }
-
-      update((state) => ({ ...state, isConnected: true, isLoading: false }));
-      return true;
     },
 
-    listFiles: async (path: string = "/") => {
-      update((state) => ({ ...state, isLoading: true, error: null }));
-
-      const result = await ftpClient.listFiles(path);
-
-      if (result.error) {
-        update((state) => ({
-          ...state,
-          error: result.error,
-          isLoading: false,
-        }));
-        return;
-      }
-
-      update((state) => ({
-        ...state,
-        currentPath: path,
-        files: result.data || [],
-        isLoading: false,
-      }));
+    async navigateToDirectory(path: string) {
+      update((state) => ({ ...state, currentPath: path }));
+      await this.refreshFiles();
     },
 
-    downloadFile: async (path: string) => {
-      update((state) => ({ ...state, isLoading: true, error: null }));
-
-      const result = await ftpClient.downloadFile(path);
-
-      if (result.error) {
+    async uploadFile(file: File, path: string) {
+      try {
+        update((state) => ({ ...state, isLoading: true, error: null }));
+        await client.uploadFile(path, file);
+        await this.refreshFiles();
+      } catch (error) {
         update((state) => ({
           ...state,
-          error: result.error,
           isLoading: false,
+          error:
+            error instanceof Error ? error.message : "Failed to upload file",
         }));
-        return;
       }
+    },
 
-      // Create a download link and trigger it
-      const url = window.URL.createObjectURL(result.data!);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = path.split("/").pop() || "download";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+    async deleteFile(path: string) {
+      try {
+        update((state) => ({ ...state, isLoading: true, error: null }));
+        await client.deleteFile(path);
+        await this.refreshFiles();
+      } catch (error) {
+        update((state) => ({
+          ...state,
+          isLoading: false,
+          error:
+            error instanceof Error ? error.message : "Failed to delete file",
+        }));
+      }
+    },
 
-      update((state) => ({ ...state, isLoading: false }));
+    async downloadFile(path: string): Promise<Blob> {
+      try {
+        update((state) => ({ ...state, isLoading: true, error: null }));
+        const blob = await client.downloadFile(path);
+        update((state) => ({ ...state, isLoading: false }));
+        return blob;
+      } catch (error) {
+        update((state) => ({
+          ...state,
+          isLoading: false,
+          error:
+            error instanceof Error ? error.message : "Failed to download file",
+        }));
+        throw error;
+      }
     },
   };
-}
+};
 
 export const ftpStore = createFTPStore();

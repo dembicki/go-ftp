@@ -19,17 +19,17 @@ func NewClient(cfg *config.Config) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) Connect() error {
-	conn, err := ftp.Dial(fmt.Sprintf("%s:%s", c.config.URL, c.config.Port))
+func (c *Client) Connect(host string, port string, username string, password string) error {
+	conn, err := ftp.Dial(fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
 		return fmt.Errorf("error connecting to FTP server: %w", err)
 	}
 
-	if err := conn.Login(c.config.Username, c.config.Password); err != nil {
+	if err := conn.Login(username, password); err != nil {
 		return fmt.Errorf("error logging in to FTP server: %w", err)
 	}
 
-	fmt.Printf("Connected to FTP server: %s:%s\n", c.config.URL, c.config.Port)
+	fmt.Printf("Connected to FTP server: %s:%s\n", host, port)
 
 	c.conn = conn
 	return nil
