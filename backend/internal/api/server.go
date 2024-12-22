@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/dembicki/go-ftp/internal/session"
@@ -10,7 +9,6 @@ import (
 
 type Server struct {
 	sessionManager *session.Manager
-	mu             sync.RWMutex
 }
 
 func NewServer() *Server {

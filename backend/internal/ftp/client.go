@@ -3,17 +3,23 @@ package ftp
 import (
 	"fmt"
 
-	"github.com/dembicki/go-ftp/internal/config"
 	"github.com/dembicki/go-ftp/internal/files"
 	"github.com/jlaffaye/ftp"
 )
 
-type Client struct {
-	conn   *ftp.ServerConn
-	config *config.Config
+type Config struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
 }
 
-func NewClient(cfg *config.Config) (*Client, error) {
+type Client struct {
+	conn   *ftp.ServerConn
+	config *Config
+}
+
+func NewClient(cfg *Config) (*Client, error) {
 	return &Client{
 		config: cfg,
 	}, nil

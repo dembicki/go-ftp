@@ -25,7 +25,7 @@ A modern FTP client with Go backend and Svelte frontend.
 
 1. Start the backend:
    ```bash
-   go run cmd/ftp-client/main.go
+   go run cmd/app/main.go
    ```
 2. Start the frontend development server:
    ```bash

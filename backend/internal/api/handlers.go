@@ -136,7 +136,7 @@ func (s *Server) handleDownload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get session from context
-	session := r.Context().Value("session").(*session.UserSession)
+	session := r.Context().Value(sessionKey).(*session.UserSession)
 
 	path := r.URL.Query().Get("path")
 	if path == "" {
