@@ -5,7 +5,6 @@
   import type { FTPItem } from "../types/FTPItem";
   import FolderIcon from "../assets/icons/FolderIcon.svelte";
   import FileIcon from "../assets/icons/FileIcon.svelte";
-  import ChevronRightIcon from "../assets/icons/ChevronRightIcon.svelte";
   import DownloadIcon from "../assets/icons/DownloadIcon.svelte";
 
   export let darkMode: boolean;
@@ -49,39 +48,43 @@
   </div>
 
   <div class="divide-y {darkMode ? 'divide-gray-800' : 'divide-gray-200'}">
-    {#each sortedFiles as file}
-      <div
-        class={clsx(
-          "grid grid-cols-12 gap-4 p-3",
-          darkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50",
-          "cursor-pointer items-center",
-          getTextClasses(darkMode, file.IsHidden)
-        )}
-      >
-        <div class="col-span-5 flex items-center gap-3">
-          {#if file.Type === "folder"}
-            <FolderIcon />
-          {:else}
-            <FileIcon />
-          {/if}
-          <span class="truncate">{file.Name}</span>
+    {#if sortedFiles.length === 0}
+      <div class="p-3 text-center text-gray-500">No files found</div>
+    {:else}
+      {#each sortedFiles as file}
+        <div
+          class={clsx(
+            "grid grid-cols-12 gap-4 p-3",
+            darkMode ? "hover:bg-gray-800/50" : "hover:bg-gray-50",
+            "cursor-pointer items-center",
+            getTextClasses(darkMode, file.IsHidden)
+          )}
+        >
+          <div class="col-span-5 flex items-center gap-3">
+            {#if file.Type === "folder"}
+              <FolderIcon />
+            {:else}
+              <FileIcon />
+            {/if}
+            <span class="truncate">{file.Name}</span>
+          </div>
+          <div class="col-span-2 capitalize">{file.Type}</div>
+          <div class="col-span-2">{formatFileSize(file.Size)}</div>
+          <div class="col-span-3 flex items-center justify-between">
+            <span>{formatDate(file.Modified)}</span>
+            {#if file.Type === "file"}
+              <button
+                class="px-2 py-1 text-xs border rounded {darkMode
+                  ? 'hover:bg-blue-900/50 text-blue-400 border-blue-900'
+                  : 'hover:bg-blue-50 text-blue-600 border-blue-200'} flex items-center gap-1"
+              >
+                <DownloadIcon />
+                Download
+              </button>
+            {/if}
+          </div>
         </div>
-        <div class="col-span-2 capitalize">{file.Type}</div>
-        <div class="col-span-2">{formatFileSize(file.Size)}</div>
-        <div class="col-span-3 flex items-center justify-between">
-          <span>{formatDate(file.Modified)}</span>
-          {#if file.Type === "file"}
-            <button
-              class="px-2 py-1 text-xs border rounded {darkMode
-                ? 'hover:bg-blue-900/50 text-blue-400 border-blue-900'
-                : 'hover:bg-blue-50 text-blue-600 border-blue-200'} flex items-center gap-1"
-            >
-              <DownloadIcon />
-              Download
-            </button>
-          {/if}
-        </div>
-      </div>
-    {/each}
+      {/each}
+    {/if}
   </div>
 </div>

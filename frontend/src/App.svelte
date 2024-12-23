@@ -2,60 +2,9 @@
   import clsx from "clsx";
   import ConnectionPanel from "./components/ConnectionPanel.svelte";
   import FileList from "./components/FileList.svelte";
-  import type { FTPItem } from "./types/FTPItem";
+  import { ftpStore } from "./lib/stores/ftpStore";
 
-  // Example data - replace with actual API call
-  const files: FTPItem[] = [
-    {
-      Name: "public_html",
-      Size: 0,
-      Type: "folder",
-      IsHidden: false,
-      Modified: "2024-12-02T16:05:19Z",
-    },
-    {
-      Name: "private_html",
-      Size: 13,
-      Type: "file",
-      IsHidden: false,
-      Modified: "2024-11-13T11:33:40Z",
-    },
-    {
-      Name: "public_ftp",
-      Size: 0,
-      Type: "folder",
-      IsHidden: false,
-      Modified: "2024-11-13T11:33:40Z",
-    },
-    {
-      Name: "..",
-      Size: 0,
-      Type: "folder",
-      IsHidden: true,
-      Modified: "2024-12-21T23:16:09Z",
-    },
-    {
-      Name: "logs",
-      Size: 0,
-      Type: "folder",
-      IsHidden: false,
-      Modified: "2024-12-21T23:16:09Z",
-    },
-    {
-      Name: ".",
-      Size: 0,
-      Type: "folder",
-      IsHidden: true,
-      Modified: "2024-12-21T23:16:09Z",
-    },
-    {
-      Name: ".htpasswd",
-      Size: 0,
-      Type: "folder",
-      IsHidden: true,
-      Modified: "2024-11-13T11:33:40Z",
-    },
-  ];
+  const files = $ftpStore.files;
 
   // Initialize dark mode from localStorage
   let darkMode = localStorage.getItem("darkMode") === "true";

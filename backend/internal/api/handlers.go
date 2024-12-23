@@ -32,7 +32,12 @@ func (s *Server) handleConnect(w http.ResponseWriter, r *http.Request) {
 
 	ftpClient, err := ftp.Dial(fmt.Sprintf("%s:%d", req.Host, req.Port))
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to connect to FTP server: %v", err), http.StatusInternalServerError)
+		// return error in json
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": fmt.Sprintf("Failed to connect to FTP server: %v", err),
+		})
 		return
 	}
 
