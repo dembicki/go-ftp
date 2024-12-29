@@ -1,5 +1,4 @@
 <script lang="ts">
-  import clsx from "clsx";
   import { formatFileSize } from "../utils/formatFileSize";
   import { formatDate } from "../utils/formatDate";
   import type { FTPItem } from "../types/FTPItem";
@@ -8,17 +7,6 @@
   import DownloadIcon from "../assets/icons/DownloadIcon.svelte";
 
   export let files: FTPItem[];
-
-  const getTextClasses = (isDark: boolean, isHidden = false) =>
-    clsx(
-      isHidden
-        ? isDark
-          ? "text-gray-600"
-          : "text-gray-400"
-        : isDark
-          ? "text-gray-300"
-          : "text-gray-900"
-    );
 
   $: sortedFiles = files
     .filter((file) => ![".", ".."].includes(file.Name))
@@ -44,10 +32,9 @@
     {:else}
       {#each sortedFiles as file}
         <div
-          class={clsx(
-            "grid grid-cols-8 md:grid-cols-12 gap-2 md:gap-4 p-3 hover:bg-gray-800 transition-colors duration-150 items-center cursor-pointer",
-            getTextClasses(true, file.IsHidden)
-          )}
+          class="grid grid-cols-8 md:grid-cols-12 gap-2 md:gap-4 p-3 hover:bg-gray-800 transition-colors duration-150 items-center cursor-pointer"
+          class:text-gray-300={!file.IsHidden}
+          class:text-gray-600={file.IsHidden}
         >
           <div class="col-span-4 md:col-span-5 flex items-center gap-3 min-w-0">
             {#if file.Type === "folder"}

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import clsx from "clsx";
   import ConnectionPanel from "./components/ConnectionPanel.svelte";
   import FileList from "./components/FileList.svelte";
   import { ftpStore } from "./lib/stores/ftpStore";
@@ -17,7 +16,7 @@
   });
 </script>
 
-<main class={clsx("flex justify-center items-center min-h-screen bg-gray-950")}>
+<main class="flex justify-center items-center min-h-screen bg-gray-950">
   <div class="h-5/6 w-5/6 rounded-lg shadow-xl bg-gray-900">
     <ConnectionPanel />
 

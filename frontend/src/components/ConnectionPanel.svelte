@@ -1,5 +1,4 @@
 <script lang="ts">
-  import clsx from "clsx";
   import { ftpStore } from "../lib/stores/ftpStore";
   import LoadingButton from "./LoadingButton.svelte";
 
@@ -60,42 +59,34 @@
     <div class="flex flex-col lg:flex-row gap-4 w-full justify-between">
       <div class="flex flex-col lg:flex-row gap-4 flex-1">
         <input
-          class={clsx(
-            "px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-            "bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800",
-            isConnected && "opacity-30"
-          )}
+          class="px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+            bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800
+            {isConnected ? 'opacity-30' : ''}"
           placeholder="Host"
           bind:value={formValues.host}
           disabled={isConnected}
         />
         <input
-          class={clsx(
-            "px-2 py-2 w-full lg:w-24 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-            "bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800",
-            isConnected && "opacity-30"
-          )}
+          class="px-2 py-2 w-full lg:w-24 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+            bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800
+            {isConnected ? 'opacity-30' : ''}"
           placeholder="Port"
           type="text"
           bind:value={formValues.port}
           disabled={isConnected}
         />
         <input
-          class={clsx(
-            "px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-            "bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800",
-            isConnected && "opacity-30"
-          )}
+          class="px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+            bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800
+            {isConnected ? 'opacity-30' : ''}"
           placeholder="Username"
           bind:value={formValues.username}
           disabled={isConnected}
         />
         <input
-          class={clsx(
-            "px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-            "bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800",
-            isConnected && "opacity-30"
-          )}
+          class="px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+            bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800
+            {isConnected ? 'opacity-30' : ''}"
           placeholder="Password"
           type="password"
           bind:value={formValues.password}
