@@ -28,12 +28,19 @@ function createFTPStore() {
   return {
     subscribe,
     connect: async (params: FTPConnection) => {
-      await api.connect(params);
-      update((state) => ({
-        ...state,
-        isConnected: true,
-        connectionDetails: params,
-      }));
+      update((state) => ({ ...state, isLoading: true }));
+      try {
+        await api.connect(params);
+        update((state) => ({
+          ...state,
+          isConnected: true,
+          connectionDetails: params,
+          isLoading: false,
+        }));
+      } catch (error) {
+        update((state) => ({ ...state, isLoading: false }));
+        throw error;
+      }
     },
     disconnect: async () => {
       await api.disconnect();
@@ -41,6 +48,8 @@ function createFTPStore() {
         ...state,
         isConnected: false,
         connectionDetails: null,
+        currentPath: '/',
+        navigationHistory: [],
         files: [],
       }));
     },
@@ -56,6 +65,8 @@ function createFTPStore() {
       update((state) => ({
         ...state,
         files: result,
+        currentPath: path,
+        navigationHistory: path === '/' ? [] : path.split('/').filter(Boolean),
       }));
     },
     goToFolder: (path: string) => {

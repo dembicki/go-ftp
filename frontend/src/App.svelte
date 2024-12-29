@@ -3,7 +3,8 @@
   import FileList from './components/FileList.svelte';
   import { ftpStore } from './lib/stores/ftpStore';
   import { onMount } from 'svelte';
-  import Breadcrumb from './components/Breadcrumb.svelte';
+  import StatusBar from './components/StatusBar.svelte';
+  import FilesHeader from './components/FilesHeader.svelte';
 
   $: isConnected = $ftpStore.isConnected;
   $: currentPath = $ftpStore.currentPath;
@@ -20,23 +21,16 @@
   <div class="h-5/6 w-5/6 rounded-lg shadow-xl bg-gray-900">
     <ConnectionPanel />
 
-    <div class="flex h-[calc(100%-4rem)] bg-gray-900">
-      <div class="flex-1 p-6">
-        <div class="flex justify-between align-middle items-center mb-4">
-          <div class="space-y-2">
-            <h2 class="text-xl font-semibold text-gray-100">Files</h2>
-            <Breadcrumb />
-          </div>
-
-          <button
-            class="px-4 py-2 rounded-md text-sm font-medium bg-gray-800 text-gray-200 hover:bg-gray-700"
-            on:click={() => ftpStore.listFiles(currentPath)}
-          >
-            Refresh
-          </button>
+    <div class="flex h-[calc(100%-4rem)] min-h-[400px] bg-gray-900">
+      <div class="flex-1 p-6 flex flex-col">
+        {#if isConnected}
+          <FilesHeader />
+        {/if}
+        <div class="flex-1 min-h-0">
+          <FileList />
         </div>
-        <FileList />
       </div>
     </div>
+    <StatusBar />
   </div>
 </main>

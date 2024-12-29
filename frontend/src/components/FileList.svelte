@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { fade, scale } from 'svelte/transition';
+  import { quartOut } from 'svelte/easing';
   import { formatFileSize } from '../utils/formatFileSize';
   import { formatDate } from '../utils/formatDate';
   import type { File } from '../types/FTPItem';
@@ -8,6 +10,7 @@
 
   $: files = $ftpStore.files;
   $: currentPath = $ftpStore.currentPath;
+  $: isConnected = $ftpStore.isConnected;
   $: sortedFiles = files
     .filter((file) => !['.', '..'].includes(file.Name))
     .sort((a, b) => {
@@ -16,7 +19,7 @@
     });
 
   $: {
-    if (currentPath) {
+    if (currentPath && isConnected) {
       ftpStore.listFiles(currentPath);
     }
   }
@@ -55,48 +58,75 @@
   }
 </script>
 
-<div class="border border-gray-800 rounded-lg overflow-hidden bg-gray-900">
-  <div
-    class="grid grid-cols-8 md:grid-cols-12 gap-2 md:gap-4 p-3 bg-gray-800 border-gray-800 border-b font-medium text-sm text-gray-300 sticky top-0"
-  >
-    <div class="col-span-4 md:col-span-5 min-w-0">Name</div>
-    <div class="col-span-2 hidden md:block">Type</div>
-    <div class="col-span-2 hidden md:block">Size</div>
-    <div class="col-span-4 md:col-span-3 min-w-[150px]">Modified</div>
-  </div>
-
-  <div class="divide-y divide-gray-800">
-    {#if sortedFiles.length === 0}
-      <div class="p-3 text-center text-gray-500">No files found</div>
-    {:else}
-      {#each sortedFiles as file}
-        <div
-          class="grid grid-cols-8 md:grid-cols-12 gap-2 md:gap-4 p-3 hover:bg-gray-800 transition-colors duration-150 items-center cursor-pointer"
-          class:text-gray-300={!file.IsHidden}
-          class:text-gray-600={file.IsHidden}
-          on:click={() => handleClick(file)}
-          on:keydown={(e) => e.key === 'Enter' && handleClick(file)}
-          role="button"
-          tabindex="0"
-          title={file.Type === 'folder' ? 'Open folder' : 'Download file'}
-        >
-          <div class="col-span-4 md:col-span-5 flex items-center gap-3 min-w-0">
-            {#if file.Type === 'folder'}
-              <FolderIcon />
-            {:else}
-              <FileIcon />
-            {/if}
-            <span class="truncate">{file.Name}</span>
-          </div>
-          <div class="col-span-2 capitalize hidden md:block">{file.Type}</div>
-          <div class="col-span-2 hidden md:block">
-            {formatFileSize(file.Size)}
-          </div>
-          <div class="col-span-4 md:col-span-3 flex items-center justify-between min-w-[150px]">
-            <span class="truncate mr-4">{formatDate(file.Modified)}</span>
-          </div>
-        </div>
-      {/each}
-    {/if}
-  </div>
+<div class="file-list">
+  {#if !isConnected}
+    <div class="no-connection" in:fade={{ duration: 300, easing: quartOut }}>
+      <p
+        class="text-gray-500 text-center"
+        in:scale={{ duration: 300, start: 0.95, easing: quartOut }}
+      >
+        Not connected to FTP server.<br />
+        Please establish a connection to view files.
+      </p>
+    </div>
+  {:else}
+    <div
+      class="border border-gray-800 rounded-lg overflow-hidden bg-gray-900"
+      in:fade={{ duration: 150, easing: quartOut }}
+    >
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-800 border-gray-800 border-b text-sm text-gray-300">
+            <th class="text-left p-3 w-[40%]">Name</th>
+            <th class="text-left p-3 w-[20%]">Type</th>
+            <th class="text-left p-3 w-[20%]">Size</th>
+            <th class="text-left p-3 w-[20%]">Modified</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-800">
+          {#each sortedFiles as file, i (file.Name)}
+            <tr
+              in:fade|local={{ duration: 150, delay: i * 30 }}
+              class="hover:bg-gray-800 transition-colors duration-150 cursor-pointer"
+              class:text-gray-300={!file.IsHidden}
+              class:text-gray-600={file.IsHidden}
+              on:click={() => handleClick(file)}
+              on:keydown={(e) => e.key === 'Enter' && handleClick(file)}
+              role="button"
+              tabindex="0"
+            >
+              <td class="p-3 w-[40%]">
+                <div class="flex items-center gap-3 min-w-0">
+                  {#if file.Type === 'folder'}
+                    <FolderIcon />
+                  {:else}
+                    <FileIcon />
+                  {/if}
+                  <span class="truncate">{file.Name}</span>
+                </div>
+              </td>
+              <td class="p-3 w-[20%] capitalize">{file.Type}</td>
+              <td class="p-3 w-[20%]">{formatFileSize(file.Size)}</td>
+              <td class="p-3 w-[20%]">{formatDate(file.Modified)}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  {/if}
 </div>
+
+<style>
+  .file-list {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .no-connection {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+</style>
