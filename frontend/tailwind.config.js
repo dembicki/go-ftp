@@ -8,5 +8,4 @@ export default {
   variants: {
     extend: {},
   },
-  darkMode: false, // or 'media' or 'class'
 };

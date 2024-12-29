@@ -1,17 +1,21 @@
 <script lang="ts">
+  import clsx from "clsx";
   import Spinner from "../assets/icons/Spinner.svelte";
-  let { isLoading, isConnected, ...rest } = $props();
+  let { isLoading, ...rest } = $props();
 </script>
 
 <button
+  class={clsx(
+    "flex items-center justify-center gap-2 rounded-md px-6 py-2",
+    "bg-[#18202F] text-white hover:bg-[#1E2937]",
+    "disabled:opacity-50 disabled:cursor-not-allowed",
+    "w-full lg:w-auto min-w-[120px]"
+  )}
   {...rest}
-  class="px-4 py-2 rounded-md transition-colors bg-blue-500 hover:bg-blue-600 text-white"
   on:click
 >
   {#if isLoading}
     <Spinner />
-  {:else if isConnected}
-    {"Connected"}
   {:else}
     {"Connect to FTP"}
   {/if}

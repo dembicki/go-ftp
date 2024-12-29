@@ -12,9 +12,11 @@ type Server struct {
 }
 
 func NewServer() *Server {
-	return &Server{
+	server := &Server{
 		sessionManager: session.NewManager(),
 	}
+	server.cleanupSessions()
+	return server
 }
 
 func enableCORS(next http.Handler) http.Handler {
@@ -34,6 +36,8 @@ func enableCORS(next http.Handler) http.Handler {
 }
 
 func (s *Server) cleanupSessions() {
+	s.sessionManager.CleanupSessions(30 * time.Minute)
+
 	ticker := time.NewTicker(30 * time.Minute)
 	go func() {
 		for range ticker.C {

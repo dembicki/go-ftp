@@ -3,34 +3,26 @@ package api
 import (
 	"context"
 	"net/http"
-	"time"
 )
 
-type contextKey string
-
-const (
-	sessionKey contextKey = "session"
-)
-
-func (s *Server) requireSession(next http.HandlerFunc) http.HandlerFunc {
+func (s *Server) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Get session cookie
 		cookie, err := r.Cookie("session_id")
 		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized: No session cookie", http.StatusUnauthorized)
 			return
 		}
 
+		// Get session from session manager
 		session, exists := s.sessionManager.GetSession(cookie.Value)
 		if !exists {
-			http.Error(w, "Session not found", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized: Invalid session", http.StatusUnauthorized)
 			return
 		}
 
-		// Update last used time
-		session.LastUsed = time.Now()
-
 		// Add session to context
-		ctx := context.WithValue(r.Context(), sessionKey, session)
+		ctx := context.WithValue(r.Context(), "session", session)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }

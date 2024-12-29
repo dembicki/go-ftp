@@ -24,9 +24,13 @@ export class APIClient {
     withCredentials: true,
   });
 
-  async connect(connection: FTPConnection): Promise<void> {
+  async connect(connection: FTPConnection): Promise<string> {
     try {
-      await this.axiosInstance.post("/ftp/connect", connection);
+      const response = await this.axiosInstance.post(
+        "/ftp/connect",
+        connection
+      );
+      return response.data;
     } catch (error: any) {
       console.log("error catched", error);
       throw new Error(error.response?.data?.error || "Failed to connect");
@@ -41,11 +45,18 @@ export class APIClient {
     }
   }
 
-  async listFiles(path: string = "/"): Promise<FTPItem[]> {
+  async checkSession(): Promise<boolean> {
     try {
-      const response = await this.axiosInstance.get("/ftp/list", {
-        params: { path },
-      });
+      const response = await this.axiosInstance.get(`/ftp/check-session`);
+      return response.data.isConnected;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || "Failed to check session");
+    }
+  }
+
+  async listFiles(): Promise<FTPItem[]> {
+    try {
+      const response = await this.axiosInstance.get(`/ftp/list`);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.error || "Failed to list files");

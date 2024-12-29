@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/dembicki/go-ftp/internal/files"
@@ -68,7 +67,7 @@ func (s *Server) handleConnect(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Successfully connected to FTP server",
+		"sessionId": session.ID,
 	})
 
 	fmt.Printf("New FTP connection with session %s\n", session.ID)
@@ -76,7 +75,8 @@ func (s *Server) handleConnect(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleDisconnect(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte("Method not allowed"))
 		return
 	}
 
@@ -84,7 +84,8 @@ func (s *Server) handleDisconnect(w http.ResponseWriter, r *http.Request) {
 	session := r.Context().Value("session").(*session.UserSession)
 
 	if err := session.Client.Quit(); err != nil {
-		http.Error(w, "Failed to disconnect from FTP server", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Failed to disconnect from FTP server"))
 		return
 	}
 
@@ -110,9 +111,20 @@ func (s *Server) handleListFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get session from context
-	session := r.Context().Value("session").(*session.UserSession)
+	// Get session from context with nil check
+	sessionVal := r.Context().Value("session")
+	if sessionVal == nil {
+		http.Error(w, "Unauthorized: No session found", http.StatusUnauthorized)
+		return
+	}
 
+	session, ok := sessionVal.(*session.UserSession)
+	if !ok {
+		http.Error(w, "Invalid session type", http.StatusInternalServerError)
+		return
+	}
+
+	// Get path from query parameters with default value
 	path := r.URL.Query().Get("path")
 	if path == "" {
 		path = "/"
@@ -134,36 +146,20 @@ func (s *Server) handleListFiles(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(files)
 }
 
-func (s *Server) handleDownload(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleCheckSession(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Get session from context
-	session := r.Context().Value(sessionKey).(*session.UserSession)
-
-	path := r.URL.Query().Get("path")
-	if path == "" {
-		http.Error(w, "Path parameter is required", http.StatusBadRequest)
+	session := r.Context().Value("session").(*session.UserSession)
+	if session == nil {
+		json.NewEncoder(w).Encode(map[string]bool{
+			"isConnected": false,
+		})
 		return
 	}
-
-	resp, err := session.Client.Retr(path)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to retrieve file: %v", err), http.StatusInternalServerError)
-		return
-	}
-	defer resp.Close()
-
-	// Set headers for file download
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", path))
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Access-Control-Expose-Headers", "Content-Disposition")
-
-	// Copy the file to the response writer
-	if _, err := io.Copy(w, resp); err != nil {
-		http.Error(w, fmt.Sprintf("Failed to send file: %v", err), http.StatusInternalServerError)
-		return
-	}
+	json.NewEncoder(w).Encode(map[string]bool{
+		"isConnected": true,
+	})
 }

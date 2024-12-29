@@ -1,8 +1,7 @@
 import { writable } from "svelte/store";
 import type { FTPItem } from "../../types/FTPItem";
-import { APIClient, type FTPConnection } from "../api/ftpClient";
+import { APIClient, type FTPConnection } from "../api/apiClient";
 
-// Basic state interface
 interface FTPState {
   connectionDetails: FTPConnection | null;
   isConnected: boolean;
@@ -26,12 +25,7 @@ function createFTPStore() {
 
   return {
     subscribe,
-    connect: async (params: {
-      host: string;
-      port: number;
-      username: string;
-      password: string;
-    }) => {
+    connect: async (params: FTPConnection) => {
       await api.connect(params);
       update((state) => ({
         ...state,
@@ -45,10 +39,18 @@ function createFTPStore() {
         ...state,
         isConnected: false,
         connectionDetails: null,
+        files: [],
       }));
     },
-    listFiles: async (path: string = "/") => {
-      const result = await api.listFiles(path);
+    checkSession: async () => {
+      const isConnected = await api.checkSession();
+      update((state) => ({
+        ...state,
+        isConnected: isConnected,
+      }));
+    },
+    listFiles: async () => {
+      const result = await api.listFiles();
       update((state) => ({
         ...state,
         files: result,
