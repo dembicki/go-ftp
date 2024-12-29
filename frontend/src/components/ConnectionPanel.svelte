@@ -2,15 +2,13 @@
   import clsx from "clsx";
   import { ftpStore } from "../lib/stores/ftpStore";
   import LoadingButton from "./LoadingButton.svelte";
-  import { onMount } from "svelte";
 
   // Create local state for form values
-  // WARNING: This is a temporary solution, we need to use a secure way to store credentials
   let formValues = {
-    host: "michaltaraszkiewicz.pl",
+    host: "",
     port: 21,
-    username: "dev2@michaltaraszkiewicz.pl",
-    password: "ECEa9WzLeq3kvFbTFhtv",
+    username: "",
+    password: "",
   };
 
   // Initialize from store if available
@@ -99,6 +97,7 @@
             isConnected && "opacity-30"
           )}
           placeholder="Password"
+          type="password"
           bind:value={formValues.password}
           disabled={isConnected}
         />
