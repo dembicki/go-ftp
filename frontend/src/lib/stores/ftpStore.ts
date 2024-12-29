@@ -1,6 +1,6 @@
-import { writable } from "svelte/store";
-import type { FTPItem } from "../../types/FTPItem";
-import { APIClient, type FTPConnection } from "../api/apiClient";
+import { writable } from 'svelte/store';
+import type { FTPItem } from '../../types/FTPItem';
+import { APIClient, type FTPConnection } from '../api/apiClient';
 
 interface FTPState {
   connectionDetails: FTPConnection | null;
@@ -12,10 +12,10 @@ interface FTPState {
 }
 
 function createFTPStore() {
-  const { subscribe, set, update } = writable<FTPState>({
+  const { subscribe, update } = writable<FTPState>({
     connectionDetails: null,
     isConnected: false,
-    currentPath: "/",
+    currentPath: '/',
     files: [],
     error: null,
     isLoading: false,

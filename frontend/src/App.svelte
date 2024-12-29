@@ -1,9 +1,9 @@
 <script lang="ts">
-  import ConnectionPanel from "./components/ConnectionPanel.svelte";
-  import FileList from "./components/FileList.svelte";
-  import { ftpStore } from "./lib/stores/ftpStore";
-  import ChevronRightIcon from "./assets/icons/ChevronRightIcon.svelte";
-  import { onMount } from "svelte";
+  import ConnectionPanel from './components/ConnectionPanel.svelte';
+  import FileList from './components/FileList.svelte';
+  import { ftpStore } from './lib/stores/ftpStore';
+  import ChevronRightIcon from './assets/icons/ChevronRightIcon.svelte';
+  import { onMount } from 'svelte';
 
   $: files = $ftpStore.files;
   $: isConnected = $ftpStore.isConnected;

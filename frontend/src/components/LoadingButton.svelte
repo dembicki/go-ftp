@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Spinner from "../assets/icons/Spinner.svelte";
+  import Spinner from '../assets/icons/Spinner.svelte';
   let { isLoading, ...rest } = $props();
 </script>
 
@@ -9,11 +9,10 @@
     disabled:opacity-50 disabled:cursor-not-allowed
     w-full lg:w-auto min-w-[120px]"
   {...rest}
-  on:click
 >
   {#if isLoading}
     <Spinner />
   {:else}
-    {"Connect to FTP"}
+    {'Connect to FTP'}
   {/if}
 </button>

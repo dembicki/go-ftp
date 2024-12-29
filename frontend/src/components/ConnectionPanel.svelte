@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { ftpStore } from "../lib/stores/ftpStore";
-  import LoadingButton from "./LoadingButton.svelte";
+  import { ftpStore } from '../lib/stores/ftpStore';
+  import LoadingButton from './LoadingButton.svelte';
 
   // Create local state for form values
   let formValues = {
-    host: "",
+    host: '',
     port: 21,
-    username: "",
-    password: "",
+    username: '',
+    password: '',
   };
 
   // Initialize from store if available
@@ -25,7 +25,7 @@
   async function handleConnect(event: MouseEvent) {
     event.preventDefault();
     if (!formValues.host || !formValues.username || !formValues.password) {
-      error = "Please fill in all fields";
+      error = 'Please fill in all fields';
       return;
     }
 
@@ -35,7 +35,7 @@
       await ftpStore.connect(formValues);
       await ftpStore.listFiles();
     } catch (err) {
-      error = err instanceof Error ? err.message : "Connection failed";
+      error = err instanceof Error ? err.message : 'Connection failed';
       // Reset connection state on error
       ftpStore.disconnect();
     } finally {
@@ -47,14 +47,12 @@
     try {
       await ftpStore.disconnect();
     } catch (err) {
-      error = err instanceof Error ? err.message : "Disconnect failed";
+      error = err instanceof Error ? err.message : 'Disconnect failed';
     }
   }
 </script>
 
-<div
-  class="flex border-b border-zinc-200 dark:border-zinc-800 p-4 gap-4 items-center w-full"
->
+<div class="flex border-b border-zinc-200 dark:border-zinc-800 p-4 gap-4 items-center w-full">
   <div class="flex flex-col gap-4 w-full">
     <div class="flex flex-col lg:flex-row gap-4 w-full justify-between">
       <div class="flex flex-col lg:flex-row gap-4 flex-1">
@@ -96,20 +94,14 @@
 
       <div class="flex gap-2 lg:gap-4 lg:ml-4">
         {#if !isConnected}
-          <LoadingButton isLoading={connecting} on:click={handleConnect}>
-            Connect
-          </LoadingButton>
+          <LoadingButton isLoading={connecting} onclick={handleConnect}>Connect</LoadingButton>
         {:else}
           <button
             on:click={handleDisconnect}
             class="group w-full lg:w-auto inline-flex items-center justify-center px-6 py-2 rounded-md transition-colors bg-[#18202F] hover:bg-[#1E2937] text-white relative min-w-[120px]"
           >
-            <span class="absolute group-hover:opacity-0 transition-opacity"
-              >Connected 🛜</span
-            >
-            <span class="opacity-0 group-hover:opacity-100 transition-opacity"
-              >Disconnect 🚧</span
-            >
+            <span class="absolute group-hover:opacity-0 transition-opacity">Connected 🛜</span>
+            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Disconnect 🚧</span>
           </button>
         {/if}
       </div>
