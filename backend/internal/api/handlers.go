@@ -210,3 +210,47 @@ func (s *Server) handleDownloadFile(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Error streaming file: %v\n", err)
 	}
 }
+
+func (s *Server) handleUploadFile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get session from context with nil check
+	sessionVal := r.Context().Value("session")
+	if sessionVal == nil {
+		http.Error(w, "Unauthorized: No session found", http.StatusUnauthorized)
+		return
+	}
+
+	session, ok := sessionVal.(*session.UserSession)
+	if !ok {
+		http.Error(w, "Invalid session type", http.StatusInternalServerError)
+		return
+	}
+
+	// Get path from query parameters
+	path := r.URL.Query().Get("path")
+	if path == "" {
+		http.Error(w, "Path parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	// Get the file from the request
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get file: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	// Upload the file to the FTP server
+	err = session.Client.Stor(path, file)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to upload file: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("File uploaded successfully"))
+}

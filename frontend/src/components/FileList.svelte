@@ -11,6 +11,7 @@
   $: files = $ftpStore.files;
   $: currentPath = $ftpStore.currentPath;
   $: isConnected = $ftpStore.isConnected;
+
   $: sortedFiles = files
     .filter((file) => !['.', '..'].includes(file.Name))
     .sort((a, b) => {
