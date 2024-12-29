@@ -22,7 +22,7 @@
   $: isConnected = $ftpStore.isConnected;
   let error: string | null = null;
 
-  async function handleConnect(event: MouseEvent) {
+  async function handleConnect(event: MouseEvent | KeyboardEvent) {
     event.preventDefault();
     if (!formValues.host || !formValues.username || !formValues.password) {
       error = 'Please fill in all fields';
@@ -89,6 +89,12 @@
           type="password"
           bind:value={formValues.password}
           disabled={isConnected}
+          on:keypress={(e) => {
+            if (e.key === 'Enter' && !isConnected) {
+              e.preventDefault();
+              handleConnect(e);
+            }
+          }}
         />
       </div>
 

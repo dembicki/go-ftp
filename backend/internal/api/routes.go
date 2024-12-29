@@ -10,7 +10,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("/api/ftp/disconnect", s.AuthMiddleware(s.handleDisconnect))
 	mux.HandleFunc("/api/ftp/check-session", s.AuthMiddleware(s.handleCheckSession))
 	mux.HandleFunc("/api/ftp/list", s.AuthMiddleware(s.handleListFiles))
-
+	mux.HandleFunc("/api/ftp/download", s.AuthMiddleware(s.handleDownloadFile))
 	// Start session cleanup
 	s.cleanupSessions()
 

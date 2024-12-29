@@ -3,7 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/dembicki/go-ftp/internal/files"
 	"github.com/dembicki/go-ftp/internal/session"
@@ -162,4 +164,50 @@ func (s *Server) handleCheckSession(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]bool{
 		"isConnected": true,
 	})
+}
+
+func (s *Server) handleDownloadFile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get session from context with nil check
+	sessionVal := r.Context().Value("session")
+	if sessionVal == nil {
+		http.Error(w, "Unauthorized: No session found", http.StatusUnauthorized)
+		return
+	}
+
+	session, ok := sessionVal.(*session.UserSession)
+	if !ok {
+		http.Error(w, "Invalid session type", http.StatusInternalServerError)
+		return
+	}
+
+	// Get path from query parameters
+	path := r.URL.Query().Get("path")
+	if path == "" {
+		http.Error(w, "Path parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	// Get the file from FTP server
+	resp, err := session.Client.Retr(path)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to retrieve file: %v", err), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Close()
+
+	// Set headers for file download
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", path[strings.LastIndex(path, "/")+1:]))
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Transfer-Encoding", "chunked")
+
+	// Stream the file to the client
+	if _, err := io.Copy(w, resp); err != nil {
+		// Log the error but don't send it to client as headers are already sent
+		fmt.Printf("Error streaming file: %v\n", err)
+	}
 }

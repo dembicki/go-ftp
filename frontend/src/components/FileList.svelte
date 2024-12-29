@@ -21,7 +21,33 @@
     }
   }
 
-  function changePath(file: File) {
+  async function downloadFile(file: File) {
+    try {
+      const path =
+        $ftpStore.currentPath === '/' ? file.Name : `${$ftpStore.currentPath}/${file.Name}`;
+
+      // Create a temporary anchor element
+      const link = document.createElement('a');
+      link.href = `http://localhost:8000/api/ftp/download?path=${encodeURIComponent(path)}`;
+      link.target = '_blank';
+
+      // Add credentials to the request
+      link.setAttribute('download', file.Name);
+
+      // Trigger the download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to download file:', error);
+      // You might want to show an error message to the user here
+    }
+  }
+
+  function handleClick(file: File) {
+    if (file.Type === 'file') {
+      downloadFile(file);
+    }
     if (file.Type !== 'folder') {
       return;
     }
@@ -48,10 +74,11 @@
           class="grid grid-cols-8 md:grid-cols-12 gap-2 md:gap-4 p-3 hover:bg-gray-800 transition-colors duration-150 items-center cursor-pointer"
           class:text-gray-300={!file.IsHidden}
           class:text-gray-600={file.IsHidden}
-          on:click={() => changePath(file)}
-          on:keydown={(e) => e.key === 'Enter' && changePath(file)}
+          on:click={() => handleClick(file)}
+          on:keydown={(e) => e.key === 'Enter' && handleClick(file)}
           role="button"
           tabindex="0"
+          title={file.Type === 'folder' ? 'Open folder' : 'Download file'}
         >
           <div class="col-span-4 md:col-span-5 flex items-center gap-3 min-w-0">
             {#if file.Type === 'folder'}
