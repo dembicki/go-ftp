@@ -27,6 +27,7 @@ func FileMapper(entries []*ftp.Entry) ([]File, error) {
 			return nil, fmt.Errorf("entry name cannot be empty")
 		}
 
+		fmt.Println(entry)
 		files = append(files, File{
 			Name:     entry.Name,
 			Size:     int64(entry.Size),

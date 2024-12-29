@@ -1,19 +1,32 @@
 <script lang="ts">
-  import { formatFileSize } from "../utils/formatFileSize";
-  import { formatDate } from "../utils/formatDate";
-  import type { FTPItem } from "../types/FTPItem";
-  import FolderIcon from "../assets/icons/FolderIcon.svelte";
-  import FileIcon from "../assets/icons/FileIcon.svelte";
-  import DownloadIcon from "../assets/icons/DownloadIcon.svelte";
+  import { formatFileSize } from '../utils/formatFileSize';
+  import { formatDate } from '../utils/formatDate';
+  import type { File } from '../types/FTPItem';
+  import FolderIcon from '../assets/icons/FolderIcon.svelte';
+  import FileIcon from '../assets/icons/FileIcon.svelte';
+  import { ftpStore } from '../lib/stores/ftpStore';
 
-  export let files: FTPItem[];
-
+  $: files = $ftpStore.files;
+  $: currentPath = $ftpStore.currentPath;
   $: sortedFiles = files
-    .filter((file) => ![".", ".."].includes(file.Name))
+    .filter((file) => !['.', '..'].includes(file.Name))
     .sort((a, b) => {
       if (a.Type === b.Type) return a.Name.localeCompare(b.Name);
-      return a.Type === "folder" ? -1 : 1;
+      return a.Type === 'folder' ? -1 : 1;
     });
+
+  $: {
+    if (currentPath) {
+      ftpStore.listFiles(currentPath);
+    }
+  }
+
+  function changePath(file: File) {
+    if (file.Type !== 'folder') {
+      return;
+    }
+    ftpStore.goToFolder(file.Name);
+  }
 </script>
 
 <div class="border border-gray-800 rounded-lg overflow-hidden bg-gray-900">
@@ -35,9 +48,13 @@
           class="grid grid-cols-8 md:grid-cols-12 gap-2 md:gap-4 p-3 hover:bg-gray-800 transition-colors duration-150 items-center cursor-pointer"
           class:text-gray-300={!file.IsHidden}
           class:text-gray-600={file.IsHidden}
+          on:click={() => changePath(file)}
+          on:keydown={(e) => e.key === 'Enter' && changePath(file)}
+          role="button"
+          tabindex="0"
         >
           <div class="col-span-4 md:col-span-5 flex items-center gap-3 min-w-0">
-            {#if file.Type === "folder"}
+            {#if file.Type === 'folder'}
               <FolderIcon />
             {:else}
               <FileIcon />
@@ -48,18 +65,8 @@
           <div class="col-span-2 hidden md:block">
             {formatFileSize(file.Size)}
           </div>
-          <div
-            class="col-span-4 md:col-span-3 flex items-center justify-between min-w-[150px]"
-          >
+          <div class="col-span-4 md:col-span-3 flex items-center justify-between min-w-[150px]">
             <span class="truncate mr-4">{formatDate(file.Modified)}</span>
-            {#if file.Type === "file"}
-              <button
-                class="p-1.5 text-xs border rounded-md hover:bg-blue-500/20 hover:border-blue-700 text-blue-400 border-blue-900/50 transition-all duration-150 flex-shrink-0 ml-2"
-                title="Download file"
-              >
-                <DownloadIcon />
-              </button>
-            {/if}
           </div>
         </div>
       {/each}

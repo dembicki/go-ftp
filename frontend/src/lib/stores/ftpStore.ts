@@ -1,12 +1,13 @@
 import { writable } from 'svelte/store';
-import type { FTPItem } from '../../types/FTPItem';
+import type { File } from '../../types/FTPItem';
 import { APIClient, type FTPConnection } from '../api/apiClient';
 
 interface FTPState {
   connectionDetails: FTPConnection | null;
   isConnected: boolean;
   currentPath: string;
-  files: FTPItem[];
+  navigationHistory: string[];
+  files: File[];
   error: string | null;
   isLoading: boolean;
 }
@@ -16,6 +17,7 @@ function createFTPStore() {
     connectionDetails: null,
     isConnected: false,
     currentPath: '/',
+    navigationHistory: [],
     files: [],
     error: null,
     isLoading: false,
@@ -49,11 +51,48 @@ function createFTPStore() {
         isConnected: isConnected,
       }));
     },
-    listFiles: async () => {
-      const result = await api.listFiles();
+    listFiles: async (path: string = '/') => {
+      const result = await api.listFiles(path);
       update((state) => ({
         ...state,
         files: result,
+      }));
+    },
+    goToFolder: (path: string) => {
+      if (path === '/') {
+        update((state) => ({
+          ...state,
+          currentPath: '/',
+          navigationHistory: [],
+        }));
+        return;
+      }
+
+      const updateHistory = (state: FTPState, path: string): string[] => {
+        const currentFolder = state.navigationHistory[state.navigationHistory.length - 1];
+
+        // if currentPath is home
+        if (currentFolder === '/') {
+          return [path];
+        }
+
+        // if path is in history, remove everything after it
+        const index = state.navigationHistory.indexOf(path);
+        if (index !== -1) {
+          return state.navigationHistory.slice(0, index + 1);
+        }
+
+        return [...state.navigationHistory, path];
+      };
+
+      const createPath = (navigationHistory: string[]): string => {
+        return navigationHistory.join('/');
+      };
+
+      update((state) => ({
+        ...state,
+        currentPath: createPath(updateHistory(state, path)),
+        navigationHistory: updateHistory(state, path),
       }));
     },
   };

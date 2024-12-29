@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import type { FTPItem } from '../../types/FTPItem';
+import type { File } from '../../types/FTPItem';
 
 export interface FTPConnection {
   host: string;
@@ -60,9 +60,9 @@ export class APIClient {
     }
   }
 
-  async listFiles(): Promise<FTPItem[]> {
+  async listFiles(path: string): Promise<File[]> {
     try {
-      const response = await this.axiosInstance.get<FTPItem[]>(`/ftp/list`);
+      const response = await this.axiosInstance.get<File[]>(`/ftp/list?path=${path}`);
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
