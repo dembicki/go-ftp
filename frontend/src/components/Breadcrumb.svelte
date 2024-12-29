@@ -10,10 +10,24 @@
 </script>
 
 <div class="flex items-center gap-2 text-sm text-gray-400">
-  <span class="hover:text-blue-400 cursor-pointer" on:click={() => navigateTo('/')}> Home </span>
+  <span
+    role="button"
+    tabindex="0"
+    class="hover:text-blue-400 cursor-pointer"
+    on:click={() => navigateTo('/')}
+    on:keydown={(e) => e.key === 'Enter' && navigateTo('/')}
+  >
+    Home
+  </span>
   {#each navigationHistory as segment}
     <ChevronRightIcon />
-    <span class="hover:text-blue-400 cursor-pointer" on:click={() => navigateTo(segment)}>
+    <span
+      role="button"
+      tabindex="0"
+      class="hover:text-blue-400 cursor-pointer"
+      on:click={() => navigateTo(segment)}
+      on:keydown={(e) => e.key === 'Enter' && navigateTo(segment)}
+    >
       {segment}
     </span>
   {/each}

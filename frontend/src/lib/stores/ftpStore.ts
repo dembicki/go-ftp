@@ -10,6 +10,34 @@ interface FTPState {
   files: File[];
   error: string | null;
   isLoading: boolean;
+  recentConnections: FTPConnection[];
+}
+
+const RECENT_CONNECTIONS_KEY = 'ftp_recent_connections';
+
+function loadRecentConnections(): FTPConnection[] {
+  try {
+    const stored = localStorage.getItem(RECENT_CONNECTIONS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentConnection(connection: FTPConnection) {
+  try {
+    const recent = loadRecentConnections();
+    // Remove any existing connection with same host and port
+    const filtered = recent.filter(
+      (c) => !(c.host === connection.host && c.port === connection.port)
+    );
+    // Add new connection to the start
+    const updated = [connection, ...filtered].slice(0, 5); // Keep last 5 connections
+    localStorage.setItem(RECENT_CONNECTIONS_KEY, JSON.stringify(updated));
+    return updated;
+  } catch {
+    return [];
+  }
 }
 
 function createFTPStore() {
@@ -21,6 +49,7 @@ function createFTPStore() {
     files: [],
     error: null,
     isLoading: false,
+    recentConnections: loadRecentConnections(),
   });
 
   const api = new APIClient();
@@ -31,11 +60,13 @@ function createFTPStore() {
       update((state) => ({ ...state, isLoading: true }));
       try {
         await api.connect(params);
+        const recentConnections = saveRecentConnection(params);
         update((state) => ({
           ...state,
           isConnected: true,
           connectionDetails: params,
           isLoading: false,
+          recentConnections,
         }));
       } catch (error) {
         update((state) => ({ ...state, isLoading: false }));
@@ -105,6 +136,17 @@ function createFTPStore() {
         currentPath: createPath(updateHistory(state, path)),
         navigationHistory: updateHistory(state, path),
       }));
+    },
+    clearRecentConnections: () => {
+      try {
+        localStorage.removeItem(RECENT_CONNECTIONS_KEY);
+        update((state) => ({
+          ...state,
+          recentConnections: [],
+        }));
+      } catch (error) {
+        console.error('Failed to clear recent connections:', error);
+      }
     },
   };
 }

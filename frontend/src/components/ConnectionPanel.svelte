@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ftpStore } from '../lib/stores/ftpStore';
   import LoadingButton from './LoadingButton.svelte';
+  import RecentConnectionsDropdown from './RecentConnectionsDropdown.svelte';
 
   // Create local state for form values
   let formValues = {
@@ -29,7 +30,6 @@
       return;
     }
 
-    error = null;
     connecting = true;
     try {
       await ftpStore.connect(formValues);
@@ -57,7 +57,7 @@
     <div class="flex flex-col lg:flex-row gap-4 w-full justify-between">
       <div class="flex flex-col lg:flex-row gap-4 flex-1">
         <input
-          class="px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+          class="h-[38px] px-3 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
             bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800
             {isConnected ? 'opacity-30' : ''}"
           placeholder="Host"
@@ -65,7 +65,7 @@
           disabled={isConnected}
         />
         <input
-          class="px-2 py-2 w-full lg:w-24 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+          class="h-[38px] px-3 w-full lg:w-24 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
             bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800
             {isConnected ? 'opacity-30' : ''}"
           placeholder="Port"
@@ -74,7 +74,7 @@
           disabled={isConnected}
         />
         <input
-          class="px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+          class="h-[38px] px-3 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
             bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800
             {isConnected ? 'opacity-30' : ''}"
           placeholder="Username"
@@ -82,7 +82,7 @@
           disabled={isConnected}
         />
         <input
-          class="px-2 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+          class="h-[38px] px-3 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
             bg-[#18202F] text-white border-zinc-200 dark:border-zinc-800
             {isConnected ? 'opacity-30' : ''}"
           placeholder="Password"
@@ -100,7 +100,10 @@
 
       <div class="flex gap-2 lg:gap-4 lg:ml-4">
         {#if !isConnected}
-          <LoadingButton isLoading={connecting} onclick={handleConnect}>Connect</LoadingButton>
+          <div class="inline-flex">
+            <LoadingButton isLoading={connecting} onclick={handleConnect}>Connect</LoadingButton>
+            <RecentConnectionsDropdown />
+          </div>
         {:else}
           <button
             on:click={handleDisconnect}
@@ -113,7 +116,7 @@
       </div>
     </div>
 
-    {#if error}
+    {#if error && !isConnected}
       <div class="flex text-center items-center gap-2 w-full">
         <div class="text-red-500 mx-auto text-sm">{error}</div>
       </div>

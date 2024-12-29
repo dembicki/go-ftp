@@ -30,16 +30,6 @@
           {/if}
         </span>
       </div>
-
-      {#if isConnected && connectionDetails}
-        <div class="ml-auto flex items-center gap-6 text-gray-400">
-          <span class="flex items-center gap-2">
-            {#if connectionDetails.username}
-              User: {connectionDetails.username}
-            {/if}
-          </span>
-        </div>
-      {/if}
     </div>
   </div>
 </div>

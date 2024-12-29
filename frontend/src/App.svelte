@@ -7,7 +7,6 @@
   import FilesHeader from './components/FilesHeader.svelte';
 
   $: isConnected = $ftpStore.isConnected;
-  $: currentPath = $ftpStore.currentPath;
 
   onMount(async () => {
     await ftpStore.checkSession();

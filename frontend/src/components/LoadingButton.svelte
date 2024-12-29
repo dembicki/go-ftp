@@ -1,18 +1,16 @@
 <script lang="ts">
-  import Spinner from '../assets/icons/Spinner.svelte';
-  let { isLoading, ...rest } = $props();
+  export let isLoading = false;
+  export let onclick: (event: MouseEvent) => void;
 </script>
 
 <button
-  class="flex items-center justify-center gap-2 rounded-md px-6 py-2
-    bg-[#18202F] text-white hover:bg-[#1E2937]
-    disabled:opacity-50 disabled:cursor-not-allowed
-    w-full lg:w-auto min-w-[120px]"
-  {...rest}
+  class="group inline-flex items-center justify-center h-[38px] px-6 rounded-l-md text-sm font-medium bg-[#18202F] hover:bg-[#1E2937] text-white relative min-w-[120px]"
+  on:click={onclick}
+  disabled={isLoading}
 >
   {#if isLoading}
-    <Spinner />
+    <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
   {:else}
-    {'Connect to FTP'}
+    <slot />
   {/if}
 </button>

@@ -4,6 +4,13 @@ A modern FTP client with Go backend and Svelte frontend.
 
 ![FTP Client GUI](./frontend/src/assets/gui.png)
 
+## Features
+
+- 🚀 Modern UI with dark mode
+- 📂 Intuitive file browsing
+- 🕒 Recent connections (last 5)
+- 💫 Smooth animations
+
 ## Setup
 
 ### Backend
