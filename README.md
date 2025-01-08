@@ -13,6 +13,10 @@ A modern FTP client with Go backend and Svelte frontend.
 
 ## Setup
 
+
+
+
+
 ### Backend
 
 1. Clone the repository
