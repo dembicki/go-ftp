@@ -1,37 +1,30 @@
 {
   "name": "frontend",
+  "version": "0.1.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
-    "lint": "eslint . --ext .js,.ts,.svelte",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
-  },
-  "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^5.0.2",
-    "@tsconfig/svelte": "^5.0.4",
-    "@typescript-eslint/eslint-plugin": "^7.3.1",
-    "@typescript-eslint/parser": "^7.3.1",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-svelte": "^2.35.1",
-    "postcss": "^8.4.49",
-    "prettier": "^3.2.5",
-    "prettier-plugin-svelte": "^3.2.1",
-    "svelte": "^5.14.3",
-    "svelte-check": "^4.1.1",
-    "tailwindcss": "^3.4.17",
-    "tslib": "^2.8.1",
-    "typescript": "~5.6.2",
-    "vite": "^6.0.3"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "axios": "^1.7.9"
+    "axios": "^1.7.9",
+    "next": "15.1.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.54.2",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }

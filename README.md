@@ -1,8 +1,8 @@
 # FTP Client
 
-A modern FTP client with Go backend and Svelte frontend.
+A modern FTP client with Go backend and Next.js frontend.
 
-![FTP Client GUI](./frontend/src/assets/gui.png)
+![FTP Client GUI](./frontend/public/gui.png)
 
 ## Features
 
